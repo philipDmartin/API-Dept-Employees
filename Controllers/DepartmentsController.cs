@@ -123,11 +123,10 @@ namespace DepartmentsEmployeesAPI.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                        SELECT
-                            Id, DeptName
-                        FROM Department
+                        UPDATE Department
+                        Set DeptName = @deptName
                         WHERE Id = @id";                        
-                        
+                     
                         cmd.Parameters.Add(new SqlParameter("@id", id));
                         cmd.Parameters.Add(new SqlParameter("@deptName", department.DeptName));
 

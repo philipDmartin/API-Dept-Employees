@@ -36,10 +36,8 @@ namespace DepartmentsEmployeesAPI.Controllers
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, d.Id
-                      FROM Employee e
-                      LEFT JOIN Department d
-                      ON e.DepartmentId = d.Id";
+                    cmd.CommandText = @"SELECT Id, FirstName, LastName, DepartmentId FROM Employee";
+                      
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<Employee> employees = new List<Employee>();
 
@@ -72,10 +70,10 @@ namespace DepartmentsEmployeesAPI.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                      SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, d.Id
-                      FROM Employee e
-                      LEFT JOIN Department d
-                      ON e.DepartmentId = d.Id";
+                      SELECT Id, FirstName, LastName, DepartmentId
+                      FROM Employee 
+                      WHERE Id = @id";
+
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -107,11 +105,13 @@ namespace DepartmentsEmployeesAPI.Controllers
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                      SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, d.Id
-                      FROM Employee e
-                      LEFT JOIN Department d
-                      ON e.DepartmentId = d.Id";
-
+                                        INSERT INTO Employee 
+                                            (FirstName, LastName, DepartmentId)
+                                        OUTPUT INSERTED
+                                            .Id 
+                                        VALUES 
+                                            (@firstName, @lastName, @departmentId)";
+                  
                     cmd.Parameters.Add(new SqlParameter("@id", employee.Id));
                     cmd.Parameters.Add(new SqlParameter("@firstName", employee.FirstName));
                     cmd.Parameters.Add(new SqlParameter("@lastName", employee.LastName));
@@ -123,7 +123,7 @@ namespace DepartmentsEmployeesAPI.Controllers
                 }
             }
         }
-
+     
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Employee employee)
         {
@@ -135,10 +135,9 @@ namespace DepartmentsEmployeesAPI.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"
-                      SELECT e.Id, e.FirstName, e.LastName, e.DepartmentId, d.Id
-                      FROM Employee e
-                      LEFT JOIN Department d
-                      ON e.DepartmentId = d.Id";
+                        UPDATE Employee
+                        Set FirstName = @firstName, LastName = @lastName, DepartmentId = @departmentId
+                        WHERE Id = @id";
 
                         cmd.Parameters.Add(new SqlParameter("@id", employee.Id));
                         cmd.Parameters.Add(new SqlParameter("@firstName", employee.FirstName));
@@ -154,6 +153,7 @@ namespace DepartmentsEmployeesAPI.Controllers
                     }
                 }
             }
+
             catch (Exception)
             {
                 if (!EmployeeExists(id))
